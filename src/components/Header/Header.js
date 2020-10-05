@@ -5,10 +5,21 @@ import ShoppingBasketIcon from '@material-ui/icons/ShoppingBasket';
 import './Header.scss';
 import { Link } from 'react-router-dom';
 import { useStateValue } from '../../state/StateProvider';
+import { auth } from '../../firebase';
 
 const Header = () => {
+  const [{ basket, user }, dispatch] = useStateValue();
+  const userName = user ? user.email : 'Guest';
 
-  const [ {basket}, dispatch] = useStateValue();
+  const handleAuthetication = () => {
+    if (user) {
+      auth.signOut();
+    }
+
+    dispatch({
+        type: 'CLEAR_BASKET'
+    })
+  }
 
   return (
     <div className="header">
@@ -24,10 +35,12 @@ const Header = () => {
         <SearchIcon className="header__searchIcon" />
       </div>
       <div className="header__nav">
-        <div className="header__nav__option">
-          <span className="option__LineOne">Hello Guest!</span>
-          <span className="option__LineTwo">Sign In</span>
-        </div>
+        <Link to={!user && "/login"}>
+          <div className="header__nav__option" onClick={handleAuthetication}>
+            <span className="option__LineOne">Hello {userName}!</span>
+            <span className="option__LineTwo">{user ? 'Sign Out' : 'Sign In'}</span>
+          </div>
+        </Link>
         <div className="header__nav__option">
           <span className="option__LineOne">Returns</span>
           <span className="option__LineTwo">& Orders</span>
@@ -39,7 +52,10 @@ const Header = () => {
         <Link to="/checkout">
           <div className="header__nav__option header__nav__optionBasket">
             <ShoppingBasketIcon />
-            <span className="option__LineTwo option__BasketCount"> {basket?.length} </span>
+            <span className="option__LineTwo option__BasketCount">
+              {' '}
+              {basket?.length}{' '}
+            </span>
           </div>
         </Link>
       </div>
